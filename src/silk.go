@@ -3,10 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"github.com/zserge/webview"
 )
 
 func main() {
+	os.Exit(mainExitCode())
+}
+
+func mainExitCode() (exitCode int) {
 	debug := true
 
 	flag.BoolVar(&debug, "d", debug, "debug")
@@ -24,5 +29,11 @@ func main() {
 	w.SetTitle(filename)
 	w.SetSize(800, 600, webview.HintNone)
 	w.Navigate(filename)
+	w.Bind("exit", func(i int) {
+		w.Terminate()
+		exitCode = i
+	})
+
 	w.Run()
+	return
 }
