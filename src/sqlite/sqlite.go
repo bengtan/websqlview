@@ -27,6 +27,12 @@ func Shutdown() {
 }
 
 func mux(op string, args ...interface{}) (result interface{}, err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("%s: %v", op, e)
+		}
+	}()
+
 	switch op {
 	case "open":
 		if a0, ok := args[0].(string); ok {
