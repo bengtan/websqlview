@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/zserge/webview"
+	"./sqlite"
 )
 
 func main() {
@@ -33,6 +34,9 @@ func mainExitCode() (exitCode int) {
 		w.Terminate()
 		exitCode = i
 	})
+
+	sqlite.Init(w)
+	defer sqlite.Shutdown()
 
 	w.Run()
 	return
