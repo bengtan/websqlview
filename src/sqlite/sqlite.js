@@ -1,9 +1,11 @@
-function Database(filename) {
+sqlite = {}
+
+sqlite.Database = function Database(filename) {
     this._id = -1
     this.filename = filename
 }
 
-Database.prototype.open = function() {
+sqlite.Database.prototype.open = function() {
     return new Promise((resolve, reject) => {
         _sqliteMux('open', this.filename).then((id) => {
             this._id = id
@@ -14,7 +16,7 @@ Database.prototype.open = function() {
     })
 }
 
-Database.prototype.close = function() {
+sqlite.Database.prototype.close = function() {
     return new Promise((resolve, reject) => {
         const handle = this._id
         this._id = -1

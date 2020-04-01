@@ -19,7 +19,9 @@ func Init(w webview.WebView) {
 // Shutdown should be called at program exit. Closes all database connections.
 func Shutdown() {
 	for _, db := range connections {
-		db.Close()
+		if (db != nil) {
+			db.Close()
+		}
 	}
 }
 
