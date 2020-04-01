@@ -19,11 +19,16 @@ sqlite.Database.prototype.open = function() {
 sqlite.Database.prototype.close = function() {
     return new Promise((resolve, reject) => {
         const handle = this._id
-        this._id = -1
-        _sqliteMux('close', handle).then(() => {
-            resolve(this)
-        }).catch((e) => {
-            reject(e)
-        })
+        if (handle >= 0) {
+            this._id = -1
+            _sqliteMux('close', handle).then(() => {
+                resolve(this)
+            }).catch((e) => {
+                reject(e)
+            })
+        }
+        else {
+            reject(`Already closed`)
+        }
     })
 }
