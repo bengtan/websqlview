@@ -14,6 +14,7 @@ var connections []*sql.DB
 // Init binds the js->go bridge for sqlite functionality
 func Init(w webview.WebView) {
 	w.Bind("_sqliteMux", mux)
+	w.Init(_sqliteJs)
 }
 
 // Shutdown should be called at program exit. Closes all database connections.
