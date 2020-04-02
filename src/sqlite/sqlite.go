@@ -35,12 +35,18 @@ func mux(op string, args ...interface{}) (result interface{}, err error) {
 
 	switch op {
 	case "open":
-		if a0, ok := args[0].(string); ok {
-			return open(a0)
+		if name, ok := args[0].(string); ok {
+			return open(name)
 		}
 	case "close":
-		if a0, ok := args[0].(float64); ok {
-			return nil, close(int(a0))
+		if handle, ok := args[0].(float64); ok {
+			return nil, close(int(handle))
+		}
+	case "exec":
+		handle, ok0 := args[0].(float64)
+		query, ok1 := args[1].(string)
+		if ok0 && ok1 {
+			return exec(int(handle), query, args[2:]...)
 		}
 	}
 
@@ -69,4 +75,11 @@ func close(handle int) (err error) {
 	db := connections[handle]
 	connections[handle] = nil
 	return db.Close()
+}
+
+func exec(handle int, query string, args ...interface{}) (result interface{}, err error) {
+	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+		return 0, fmt.Errorf("Invalid handle %d", handle)
+	}
+	return connections[handle].Exec(query, args...)
 }

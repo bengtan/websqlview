@@ -19,6 +19,14 @@ sqlite.Database.prototype.close = function() {
         const handle = this._id
         this._id = -1
         _sqliteMux('close', handle)
-        .then(() => resolve()).catch(e => reject(e))
+            .then(() => resolve()).catch(e => reject(e))
     })
 }
+
+sqlite.Database.prototype.exec = function(query, ...params) {
+    return new Promise((resolve, reject) => {
+        _sqliteMux('exec', this._id, query, ...params)
+            .then(() => resolve()).catch(e => reject(e))
+    })
+}
+
