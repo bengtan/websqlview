@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head><title>Test Harness</title></head>
+    <body>
+        <script>
+            window.onload = function() {
+                runTest().then(errString => {
+                    errString ? fail(`Failed: ${errString}`) : pass()
+                }).catch(e => {
+                    fail(`Unhandled promise rejection: ${e}`)
+                })
+            };
+        </script>
+    </body>
+</html>
