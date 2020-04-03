@@ -26,12 +26,13 @@ sqlite.Database.prototype.close = function() {
 sqlite.Database.prototype.exec = function(query, ...params) {
     return new Promise((resolve, reject) => {
         _sqliteMux('exec', this._id, query, ...params)
-            .then((data) => {
-                resolve({
-                    lastInsertId: data[0],
-                    rowsAffected: data[1],
-                })
-            }).catch(reject)
+            .then(resolve).catch(reject)
     })
 }
 
+sqlite.Database.prototype.query = function(query, ...params) {
+    return new Promise((resolve, reject) => {
+        _sqliteMux('query', this._id, query, ...params)
+            .then(resolve).catch(reject)
+    })
+}

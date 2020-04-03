@@ -44,9 +44,15 @@ func mux(op string, args ...interface{}) (result interface{}, err error) {
 		}
 	case "exec":
 		handle, ok0 := args[0].(float64)
-		query, ok1 := args[1].(string)
+		q, ok1 := args[1].(string)
 		if ok0 && ok1 {
-			return exec(int(handle), query, args[2:]...)
+			return exec(int(handle), q, args[2:]...)
+		}
+	case "query":
+		handle, ok0 := args[0].(float64)
+		q, ok1 := args[1].(string)
+		if ok0 && ok1 {
+			return query(int(handle), q, args[2:]...)
 		}
 	}
 
@@ -94,5 +100,46 @@ func exec(handle int, query string, args ...interface{}) (result interface{}, er
 
 	lastInsertID, _ := code.LastInsertId()
 	rowsAffected, _ := code.RowsAffected()
-	return []int64{lastInsertID, rowsAffected}, err
+
+	return map[string]interface{}{
+		"lastInsertId": lastInsertID,
+		"rowsAffected": rowsAffected,
+	}, err
+}
+
+func query(handle int, query string, args ...interface{}) (result interface{}, err error) {
+	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+		return nil, fmt.Errorf("Invalid handle %d", handle)
+	}
+
+	rows, err := connections[handle].Query(query, args...)
+	if (err != nil) {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Prepare placeholders for scanning
+	types, _ := rows.ColumnTypes()
+	columns := make([]interface{}, len(types), len(types))
+	references := make([]interface{}, 0, len(types))
+	for i := range types {
+		references = append(references, &columns[i])
+	}
+
+	data := make([]map[string]interface{}, 0, len(types))
+	for rows.Next() {
+		err := rows.Scan(references...)
+		if err != nil {
+			return data, err
+		}
+
+		object := map[string]interface{}{}
+		for i, t := range types {
+			object[t.Name()] = columns[i]
+		}
+		data = append(data, object)
+	}
+
+	err = rows.Err()
+	return data, err
 }
