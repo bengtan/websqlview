@@ -84,7 +84,15 @@ func close(handle int) (err error) {
 
 func exec(handle int, query string, args ...interface{}) (result interface{}, err error) {
 	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
-		return 0, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
-	return connections[handle].Exec(query, args...)
+
+	code, err := connections[handle].Exec(query, args...)
+	if (err != nil) {
+		return nil, err
+	}
+
+	lastInsertID, _ := code.LastInsertId()
+	rowsAffected, _ := code.RowsAffected()
+	return []int64{lastInsertID, rowsAffected}, err
 }

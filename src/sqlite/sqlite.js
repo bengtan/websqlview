@@ -10,7 +10,7 @@ sqlite.Database.prototype.open = function() {
         _sqliteMux('open', this.filename).then((id) => {
             this._id = id
             resolve()
-        }).catch(e => reject(e))
+        }).catch(reject)
     })
 }
 
@@ -19,14 +19,19 @@ sqlite.Database.prototype.close = function() {
         const handle = this._id
         this._id = -1
         _sqliteMux('close', handle)
-            .then(() => resolve()).catch(e => reject(e))
+            .then(resolve).catch(reject)
     })
 }
 
 sqlite.Database.prototype.exec = function(query, ...params) {
     return new Promise((resolve, reject) => {
         _sqliteMux('exec', this._id, query, ...params)
-            .then(() => resolve()).catch(e => reject(e))
+            .then((data) => {
+                resolve({
+                    lastInsertId: data[0],
+                    rowsAffected: data[1],
+                })
+            }).catch(reject)
     })
 }
 
