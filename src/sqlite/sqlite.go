@@ -63,6 +63,11 @@ func open(name string) (result interface{}, err error) {
 		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
 	}
 
+	err = db.Ping()
+	if err != nil {
+		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
+	}
+
 	handle := len(connections)
 	connections = append(connections, db)
 	return handle, nil
