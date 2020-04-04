@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"strings"
 	// SQLite database driver
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/zserge/webview"
@@ -52,7 +53,13 @@ func mux(op string, args ...interface{}) (result interface{}, err error) {
 		handle, ok0 := args[0].(float64)
 		q, ok1 := args[1].(string)
 		if ok0 && ok1 {
-			return query(int(handle), q, args[2:]...)
+			return query(false, int(handle), q, args[2:]...)
+		}
+	case "queryRow":
+		handle, ok0 := args[0].(float64)
+		q, ok1 := args[1].(string)
+		if ok0 && ok1 {
+			return query(true, int(handle), q, args[2:]...)
 		}
 	}
 
@@ -107,12 +114,15 @@ func exec(handle int, query string, args ...interface{}) (result interface{}, er
 	}, err
 }
 
-func query(handle int, query string, args ...interface{}) (result interface{}, err error) {
+func query(singleton bool, handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
+	if strings.ToLower(q[0:6]) != "select" {
+		return nil, fmt.Errorf("Query strings must start with SELECT")
+	}
 
-	rows, err := connections[handle].Query(query, args...)
+	rows, err := connections[handle].Query(q, args...)
 	if (err != nil) {
 		return nil, err
 	}
@@ -124,6 +134,20 @@ func query(handle int, query string, args ...interface{}) (result interface{}, e
 	references := make([]interface{}, 0, len(types))
 	for i := range types {
 		references = append(references, &columns[i])
+	}
+
+	if singleton {
+		rows.Next()
+		err := rows.Scan(references...)
+		if err != nil {
+			return nil, err
+		}
+		object := map[string]interface{}{}
+		for i, t := range types {
+			object[t.Name()] = columns[i]
+		}
+
+		return object, rows.Err()
 	}
 
 	data := make([]map[string]interface{}, 0, len(types))
@@ -140,6 +164,5 @@ func query(handle int, query string, args ...interface{}) (result interface{}, e
 		data = append(data, object)
 	}
 
-	err = rows.Err()
-	return data, err
+	return data, rows.Err()
 }
