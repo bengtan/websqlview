@@ -43,6 +43,13 @@ sqlite = (function() {
         })
     }
 
+    Database.prototype.queryResult = function(query, ...params) {
+        return new Promise((resolve, reject) => {
+            _sqliteMux('queryResult', this._id, query, ...params)
+                .then(resolve).catch(reject)
+        })
+    }
+
     return {
         Database
     }

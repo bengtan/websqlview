@@ -61,6 +61,12 @@ func mux(op string, args ...interface{}) (result interface{}, err error) {
 		if ok0 && ok1 {
 			return query(true, int(handle), q, args[2:]...)
 		}
+	case "queryResult":
+		handle, ok0 := args[0].(float64)
+		q, ok1 := args[1].(string)
+		if ok0 && ok1 {
+			return queryResult(int(handle), q, args[2:]...)
+		}
 	}
 
 	signature := []string{}
@@ -165,4 +171,17 @@ func query(singleton bool, handle int, q string, args ...interface{}) (result in
 	}
 
 	return data, rows.Err()
+}
+
+func queryResult(handle int, q string, args ...interface{}) (result interface{}, err error) {
+	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+		return nil, fmt.Errorf("Invalid handle %d", handle)
+	}
+	if strings.ToLower(q[0:6]) != "select" {
+		return nil, fmt.Errorf("Query strings must start with SELECT")
+	}
+
+	var data interface{}
+	err = connections[handle].QueryRow(q, args...).Scan(&data)
+	return data, err
 }
