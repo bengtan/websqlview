@@ -143,17 +143,19 @@ func query(singleton bool, handle int, q string, args ...interface{}) (result in
 	}
 
 	if singleton {
-		rows.Next()
-		err := rows.Scan(references...)
-		if err != nil {
-			return nil, err
-		}
-		object := map[string]interface{}{}
-		for i, t := range types {
-			object[t.Name()] = columns[i]
-		}
+		if rows.Next() {
+			err := rows.Scan(references...)
+			if err != nil {
+				return nil, err
+			}
+			object := map[string]interface{}{}
+			for i, t := range types {
+				object[t.Name()] = columns[i]
+			}
 
-		return object, rows.Err()
+			return object, rows.Err()
+		}
+		return nil, nil
 	}
 
 	data := make([]map[string]interface{}, 0, len(types))

@@ -35,6 +35,11 @@ runTest = async function() {
         return `Unexpected data, Actual: ${JSON.stringify(data)}`
     }
 
+    data = await db.queryRow(`SELECT id, word from foo WHERE FALSE`)
+    if (data) {
+        return `Expected NULL, Actual: ${JSON.stringify(data)}`
+    }
+
     data = await db.queryResult(`SELECT word from foo WHERE id = ?`, 1)
     if (data != 'Lorem') {
         return `Expected Lorem, Actual: ${data}`
