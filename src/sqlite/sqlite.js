@@ -23,31 +23,16 @@ sqlite = (function() {
     }
 
     Database.prototype.exec = function(query, ...params) {
-        return new Promise((resolve, reject) => {
-            _sqliteMux('exec', this._id, query, ...params)
-                .then(resolve).catch(reject)
-        })
+        return _sqliteMux('exec', this._id, query, ...params)
     }
-
     Database.prototype.query = function(query, ...params) {
-        return new Promise((resolve, reject) => {
-            _sqliteMux('query', this._id, query, ...params)
-                .then(resolve).catch(reject)
-        })
+        return _sqliteMux('query', this._id, query, ...params)
     }
-
     Database.prototype.queryRow = function(query, ...params) {
-        return new Promise((resolve, reject) => {
-            _sqliteMux('queryRow', this._id, query, ...params)
-                .then(resolve).catch(reject)
-        })
+        return _sqliteMux('queryRow', this._id, query, ...params)
     }
-
     Database.prototype.queryResult = function(query, ...params) {
-        return new Promise((resolve, reject) => {
-            _sqliteMux('queryResult', this._id, query, ...params)
-                .then(resolve).catch(reject)
-        })
+        return _sqliteMux('queryResult', this._id, query, ...params)
     }
 
     return {
