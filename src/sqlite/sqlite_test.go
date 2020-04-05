@@ -48,6 +48,14 @@ func testOneJS(t *testing.T, filename string) {
 	Init(w)
 	defer Shutdown()
 
+	// Override with sqlite.js
+	sqliteJs, err := ioutil.ReadFile("sqlite.js")
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	w.Init(string(sqliteJs))
+
 	w.Init(string(text))
 	w.Navigate("file://" + wd + "/test/testHarness.html")
 	w.Run()
