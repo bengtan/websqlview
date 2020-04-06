@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
 	"github.com/zserge/webview"
 )
 
@@ -23,7 +24,7 @@ func TestJS(t *testing.T) {
 	for _, filename := range matches {
 		fmt.Printf("Testing: %s", filename)
 		failure := testOneJS(filename)
-		if (failure == "") {
+		if failure == "" {
 			fmt.Println(" - pass")
 		} else {
 			fmt.Println(" - FAIL")

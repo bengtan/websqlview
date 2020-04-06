@@ -1,6 +1,6 @@
 package sqlite
 
-const _sqliteJs=`
+const _sqliteJs = `
 sqlite = (function() {
     const Database = function(filename) {
         this._id = -1

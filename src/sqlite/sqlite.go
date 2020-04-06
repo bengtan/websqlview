@@ -16,7 +16,7 @@ var transactions []*sql.Tx
 type queryable interface {
 	Exec(string, ...interface{}) (sql.Result, error)
 	Query(string, ...interface{}) (*sql.Rows, error)
-	QueryRow(string, ...interface{}) (*sql.Row)
+	QueryRow(string, ...interface{}) *sql.Row
 }
 
 // Init binds the js->go bridge for sqlite functionality
@@ -30,7 +30,7 @@ func Init(w webview.WebView) {
 // Shutdown should be called at program exit. Closes all database connections.
 func Shutdown() {
 	for _, db := range connections {
-		if (db != nil) {
+		if db != nil {
 			db.Close()
 		}
 	}
@@ -143,7 +143,7 @@ func open(name string) (result interface{}, err error) {
 		}
 	}
 
-	if (handle == -1) {
+	if handle == -1 {
 		// Use a new handle
 		handle = len(connections)
 		connections = append(connections, db)
@@ -152,7 +152,7 @@ func open(name string) (result interface{}, err error) {
 }
 
 func close(handle int) (err error) {
-	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
 		return fmt.Errorf("Invalid handle %d", handle)
 	}
 	db := connections[handle]
@@ -161,7 +161,7 @@ func close(handle int) (err error) {
 }
 
 func exec(handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 	return _exec(connections[handle], q, args...)
@@ -169,7 +169,7 @@ func exec(handle int, q string, args ...interface{}) (result interface{}, err er
 
 func _exec(queryInterface queryable, q string, args ...interface{}) (result interface{}, err error) {
 	code, err := queryInterface.Exec(q, args...)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -183,7 +183,7 @@ func _exec(queryInterface queryable, q string, args ...interface{}) (result inte
 }
 
 func query(singleton bool, handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 	return _query(singleton, connections[handle], q, args...)
@@ -195,7 +195,7 @@ func _query(singleton bool, queryInterface queryable, q string, args ...interfac
 	}
 
 	rows, err := queryInterface.Query(q, args...)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
@@ -242,7 +242,7 @@ func _query(singleton bool, queryInterface queryable, q string, args ...interfac
 }
 
 func queryResult(handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 	return _queryResult(connections[handle], q, args...)
@@ -259,7 +259,7 @@ func _queryResult(queryInterface queryable, q string, args ...interface{}) (resu
 }
 
 func begin(handle int) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(connections) || connections[handle] == nil) {
+	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 
@@ -278,7 +278,7 @@ func begin(handle int) (result interface{}, err error) {
 		}
 	}
 
-	if (txHandle == -1) {
+	if txHandle == -1 {
 		// Use a new handle
 		txHandle = len(transactions)
 		transactions = append(transactions, tx)
@@ -287,7 +287,7 @@ func begin(handle int) (result interface{}, err error) {
 }
 
 func txCommitOrRollback(isCommit bool, handle int) (err error) {
-	if (handle < 0 || handle >= len(transactions) || transactions[handle] == nil) {
+	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
 		return fmt.Errorf("Invalid handle %d", handle)
 	}
 	tx := transactions[handle]
@@ -300,7 +300,7 @@ func txCommitOrRollback(isCommit bool, handle int) (err error) {
 }
 
 func txExec(handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(transactions) || transactions[handle] == nil) {
+	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 
@@ -308,14 +308,14 @@ func txExec(handle int, q string, args ...interface{}) (result interface{}, err 
 }
 
 func txQuery(singleton bool, handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(transactions) || transactions[handle] == nil) {
+	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 	return _query(singleton, transactions[handle], q, args...)
 }
 
 func txQueryResult(handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if (handle < 0 || handle >= len(transactions) || transactions[handle] == nil) {
+	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 	return _queryResult(transactions[handle], q, args...)
