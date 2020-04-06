@@ -1,8 +1,8 @@
 package sqlite
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,16 +21,23 @@ func TestMain(m *testing.M) {
 func TestJS(t *testing.T) {
 	matches, _ := filepath.Glob("test/*.js")
 	for _, filename := range matches {
-		log.Println("Testing:", filename)
-		testOneJS(t, filename)
+		fmt.Printf("Testing: %s", filename)
+		failure := testOneJS(filename)
+		if (failure == "") {
+			fmt.Println(" - pass")
+		} else {
+			fmt.Println(" - FAIL")
+			t.Errorf(failure)
+			return
+		}
 	}
 }
 
-func testOneJS(t *testing.T, filename string) {
+func testOneJS(filename string) (failure string) {
+	failure = ""
 	text, err := ioutil.ReadFile(filename)
 	if err != nil {
-		t.Errorf(err.Error())
-		return
+		return err.Error()
 	}
 
 	w := webview.New(true)
@@ -42,7 +49,7 @@ func testOneJS(t *testing.T, filename string) {
 	})
 	w.Bind("fail", func(s string) {
 		w.Terminate()
-		t.Errorf(s)
+		failure = s
 	})
 
 	Init(w)
@@ -51,8 +58,7 @@ func testOneJS(t *testing.T, filename string) {
 	// Override with sqlite.js
 	sqliteJs, err := ioutil.ReadFile("sqlite.js")
 	if err != nil {
-		t.Errorf(err.Error())
-		return
+		return err.Error()
 	}
 	w.Init(string(sqliteJs))
 
