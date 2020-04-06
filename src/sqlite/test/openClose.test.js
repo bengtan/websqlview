@@ -7,9 +7,9 @@ runTest = async function() {
     const db2 = new sqlite.Database(':memory:')
     await db2.open()
 
-    // Expect the handle to increment
-    if (db2._id != handle1+1) {
-        return `Expected: ${handle1+1}, Actual: ${db2._id}`
+    // Expect the handle to be reused
+    if (db2._id != handle1) {
+        return `Expected: ${handle1}, Actual: ${db2._id}`
     }
     await db2.close()
 

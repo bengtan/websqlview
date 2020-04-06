@@ -87,8 +87,21 @@ func open(name string) (result interface{}, err error) {
 		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
 	}
 
-	handle := len(connections)
-	connections = append(connections, db)
+	handle := -1
+	for i := range connections {
+		if connections[i] == nil {
+			// Reuse a handle
+			handle = i
+			connections[i] = db
+			break
+		}
+	}
+
+	// Use a new handle
+	if (handle == -1) {
+		handle = len(connections)
+		connections = append(connections, db)
+	}
 	return handle, nil
 }
 
