@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bengtan/silk/sqlite"
 	"github.com/zserge/webview"
-
-	"./sqlite"
 )
 
 func main() {
