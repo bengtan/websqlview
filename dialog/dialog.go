@@ -11,7 +11,6 @@ import (
 func Init(w webview.WebView) {
 	w.Bind("_dialogMux", mux)
 	w.Init(_dialogJs)
-	fmt.Println("dialog.go Init")
 }
 
 func mux(w webview.WebView, op string, args ...interface{}) (result interface{}, err error) {
@@ -26,6 +25,10 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 	}()
 
 	switch op {
+	case "directory":
+		if config, ok := args[0].(map[string]interface{}); ok {
+			return directory(config)
+		}
 	case "file":
 		if config, ok := args[0].(map[string]interface{}); ok {
 			return file(config)
@@ -37,6 +40,14 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 		signature = append(signature, reflect.TypeOf(arg).Name())
 	}
 	return nil, fmt.Errorf("Unknown operation %s with signature %v", op, signature)
+}
+
+func directory(config map[string]interface{}) (result interface{}, err error) {
+	d := dialog.Directory()
+	if title, ok := config["title"]; ok {
+		d.Title(title.(string))
+	}
+	return d.Browse()
 }
 
 func file(config map[string]interface{}) (result interface{}, err error) {
