@@ -36,7 +36,11 @@ func Shutdown() {
 	}
 }
 
-func mux(op string, args ...interface{}) (result interface{}, err error) {
+func mux(w webview.WebView, op string, args ...interface{}) (result interface{}, err error) {
+	if w.GetURI()[0:7] != "file://" {
+		return nil, fmt.Errorf("Access denied")
+	}
+
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%s: %v", op, e)

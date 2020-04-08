@@ -31,9 +31,13 @@ func mainExitCode() (exitCode int) {
 	w.SetTitle(filename)
 	w.SetSize(800, 600, webview.HintNone)
 	w.Navigate(filename)
-	w.Bind("exit", func(i int) {
+	w.Bind("exit", func(w webview.WebView, i int) (err error) {
+		if w.GetURI()[0:7] != "file://" {
+			return fmt.Errorf("Access denied")
+		}
 		w.Terminate()
 		exitCode = i
+		return nil
 	})
 
 	sqlite.Init(w)
