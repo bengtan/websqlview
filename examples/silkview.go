@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bengtan/silk"
 	"github.com/bengtan/silk/sqlite"
+	"github.com/bengtan/silk/dialog"
 	"github.com/zserge/webview"
 )
 
@@ -31,17 +33,11 @@ func mainExitCode() (exitCode int) {
 	w.SetTitle(filename)
 	w.SetSize(800, 600, webview.HintNone)
 	w.Navigate(filename)
-	w.Bind("exit", func(w webview.WebView, i int) (err error) {
-		if w.GetURI()[0:7] != "file://" {
-			return fmt.Errorf("Access denied")
-		}
-		w.Terminate()
-		exitCode = i
-		return nil
-	})
 
+	silk.Init(w, &exitCode)
 	sqlite.Init(w)
 	defer sqlite.Shutdown()
+	dialog.Init(w)
 
 	w.Run()
 	return
