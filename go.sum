@@ -1,3 +1,7 @@
+github.com/bengtan/webview v0.0.0-20200324053421-cccd9636402d h1:7Z2KY8jGoGLzuaTGq9AWv4jqWYT5KwSPxpqqFeiqzzw=
+github.com/bengtan/webview v0.0.0-20200324053421-cccd9636402d/go.mod h1:qxc/5N3SOFrs3q+EAVHqaJ1oLbm+hHlDhfhRYg8x7wQ=
+github.com/bengtan/webview v0.0.0-20200408020914-a8d421d766ce h1:O62ElqPY0vOSKMd/Kjdp6hxP1FJ7tsr73/65r4D57aM=
+github.com/bengtan/webview v0.0.0-20200408020914-a8d421d766ce/go.mod h1:qxc/5N3SOFrs3q+EAVHqaJ1oLbm+hHlDhfhRYg8x7wQ=
 github.com/mattn/go-sqlite3 v2.0.3+incompatible h1:gXHsfypPkaMZrKbD5209QV9jbUTJKjyR5WD3HYQSd+U=
 github.com/mattn/go-sqlite3 v2.0.3+incompatible/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 github.com/zserge/webview v0.0.0-20200324053421-cccd9636402d h1:1ssHensy74k1A0mZkTR8sj3BhkZ8BdHrTT36lBDxFn0=

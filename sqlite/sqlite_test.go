@@ -45,10 +45,10 @@ func testOneJS(filename string) (failure string) {
 	defer w.Destroy()
 	w.SetTitle("Testing: " + filename)
 	w.SetSize(800, 600, webview.HintNone)
-	w.Bind("pass", func() {
+	w.Bind("pass", func(wv webview.WebView) {
 		w.Terminate()
 	})
-	w.Bind("fail", func(s string) {
+	w.Bind("fail", func(wv webview.WebView, s string) {
 		w.Terminate()
 		failure = s
 	})

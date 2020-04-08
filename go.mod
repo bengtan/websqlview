@@ -6,3 +6,5 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/zserge/webview v0.0.0-20200324053421-cccd9636402d
 )
+
+replace github.com/zserge/webview => github.com/bengtan/webview v0.0.0-20200408020914-a8d421d766ce
