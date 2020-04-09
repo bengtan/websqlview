@@ -16,14 +16,30 @@ type database struct {
 	conn *sqlite3.SQLiteConn
 }
 
-var databases []*database
-var transactions []*sql.Tx
-var m sync.Mutex
+const driverName = "sqlite3_silk"
+
+var (
+	databases []*database
+	transactions []*sql.Tx
+	m sync.Mutex
+	connectionPlaceholder *sqlite3.SQLiteConn
+)
 
 type queryable interface {
 	Exec(string, ...interface{}) (sql.Result, error)
 	Query(string, ...interface{}) (*sql.Rows, error)
 	QueryRow(string, ...interface{}) *sql.Row
+}
+
+func init() {
+	// Register a new sql driver.
+	// This is a hacky, round-about way to get the underlying sqlite3 connection
+	sql.Register(driverName, &sqlite3.SQLiteDriver{
+		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+			connectionPlaceholder = conn
+			return nil
+		},
+	})
 }
 
 // Init binds the js->go bridge for sqlite functionality
@@ -34,7 +50,7 @@ func Init(w webview.WebView) {
 	w.Init(_sqliteJs)
 }
 
-// Shutdown should be called at program exit. Closes all database connections.
+// Shutdown should be called at program exit. Closes all databases.
 func Shutdown() {
 	for _, db := range databases {
 		if db != nil {
@@ -137,7 +153,8 @@ func open(name string) (result interface{}, err error) {
 	m.Lock()
 	defer m.Unlock()
 
-	sqlDb, err := sql.Open("sqlite3", name)
+	connectionPlaceholder = nil
+	sqlDb, err := sql.Open(driverName, name)
 	if err != nil {
 		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
 	}
@@ -148,8 +165,15 @@ func open(name string) (result interface{}, err error) {
 		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
 	}
 
+	if connectionPlaceholder == nil {
+		// This should never happen
+		sqlDb.Close()
+		return -1, fmt.Errorf("open(%s): internal error", name)
+	}
+
 	db := &database{
 		sqlDb: sqlDb,
+		conn: connectionPlaceholder,
 	}
 
 	handle := -1
