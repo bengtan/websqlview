@@ -103,6 +103,12 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 		if ok0 && ok1 {
 			return queryResult(int(handle), q, args[2:]...)
 		}
+	case "backupTo":
+		handle, ok0 := args[0].(float64)
+		dest, ok1 := args[1].(string)
+		if ok0 && ok1 {
+			return backupTo(int(handle), dest)
+		}
 	case "begin":
 		if handle, ok := args[0].(float64); ok {
 			return begin(int(handle))
@@ -149,7 +155,7 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 	return nil, fmt.Errorf("Unknown operation %s with signature %v", op, signature)
 }
 
-func open(name string) (result interface{}, err error) {
+func open(name string) (handle int, err error) {
 	m.Lock()
 	defer m.Unlock()
 
@@ -176,7 +182,7 @@ func open(name string) (result interface{}, err error) {
 		conn: connectionPlaceholder,
 	}
 
-	handle := -1
+	handle = -1
 	for i := range databases {
 		if databases[i] == nil {
 			// Reuse a handle
@@ -302,6 +308,48 @@ func _queryResult(queryInterface queryable, q string, args ...interface{}) (resu
 	var data interface{}
 	err = queryInterface.QueryRow(q, args...).Scan(&data)
 	return data, err
+}
+
+func backupTo(handle int, dest string) (_ int, err error) {
+	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
+		return -1, fmt.Errorf("Invalid handle %d", handle)
+	}
+
+	destHandle, err := open(dest)
+	if err != nil {
+		if destHandle >= 0 {
+			close(destHandle)
+		}
+		return -1, err
+	}
+
+	srcConn := databases[handle].conn
+	destConn := databases[destHandle].conn
+	backupObj, err := destConn.Backup("main", srcConn, "main")
+	if err != nil {
+		if destHandle >= 0 {
+			close(destHandle)
+		}
+		return -1, err
+	}
+
+	done, err := backupObj.Step(-1)
+	if err != nil || !done {
+		backupObj.Finish()
+		close(destHandle)
+		if !done {
+			return -1, fmt.Errorf("backupTo(%s): internal error", dest)
+		}
+		return -1, err
+	}
+
+	err = backupObj.Finish()
+	if err != nil {
+		close(destHandle)
+		return -1, err
+	}
+
+	return destHandle, nil
 }
 
 func begin(handle int) (result interface{}, err error) {

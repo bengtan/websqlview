@@ -1,12 +1,12 @@
 sqlite = (function() {
-    const Database = function(filename) {
-        this._id = -1
+    const Database = function(filename, id = -1) {
+        this._id = id
         this.filename = filename
     }
 
     Database.prototype.open = function() {
         return new Promise((resolve, reject) => {
-            _sqliteMux('open', this.filename).then((id) => {
+            _sqliteMux('open', this.filename).then(id => {
                 this._id = id
                 resolve()
             }).catch(reject)
@@ -34,19 +34,25 @@ sqlite = (function() {
     Database.prototype.queryResult = function(query, ...params) {
         return _sqliteMux('queryResult', this._id, query, ...params)
     }
+    Database.prototype.backupTo = function(dest) {
+        return new Promise((resolve, reject) => {
+            _sqliteMux('backupTo', this._id, dest).then(id => {
+                resolve(new Database(dest, id))
+            }).catch(reject)
+        })
+    }
 
     Database.prototype.begin = function() {
         return new Promise((resolve, reject) => {
-            _sqliteMux('begin', this._id).then((id) => {
-                tx = new Transaction()
-                tx._id = id
+            _sqliteMux('begin', this._id).then(id => {
+                tx = new Transaction(id)
                 resolve(tx)
             }).catch(reject)
         })
     }
 
-    const Transaction = function() {
-        this._id = -1
+    const Transaction = function(id = -1) {
+        this._id = id
     }
 
     Transaction.prototype.commit = function() {
