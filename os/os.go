@@ -2,6 +2,7 @@ package os
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"github.com/zserge/webview"
 )
@@ -32,6 +33,10 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 			w.Terminate()
 			*exitCodePtr = int(exitCode)
 			return nil, nil
+		}
+	case "remove":
+		if name, ok := args[0].(string); ok {
+			return nil, os.Remove(name)
 		}
 	}
 

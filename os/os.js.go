@@ -6,6 +6,9 @@ os = (function() {
         exit: exitCode => {
             return _osMux('exit', exitCode)
         },
+        remove: name => {
+            return _osMux('remove', name)
+        },
     }
 })()
 `
