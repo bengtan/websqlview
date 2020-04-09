@@ -13,15 +13,15 @@ import (
 
 type database struct {
 	sqlDb *sql.DB
-	conn *sqlite3.SQLiteConn
+	conn  *sqlite3.SQLiteConn
 }
 
 const driverName = "sqlite3_silk"
 
 var (
-	databases []*database
-	transactions []*sql.Tx
-	m sync.Mutex
+	databases             []*database
+	transactions          []*sql.Tx
+	m                     sync.Mutex
 	connectionPlaceholder *sqlite3.SQLiteConn
 )
 
@@ -179,7 +179,7 @@ func open(name string) (handle int, err error) {
 
 	db := &database{
 		sqlDb: sqlDb,
-		conn: connectionPlaceholder,
+		conn:  connectionPlaceholder,
 	}
 
 	handle = -1

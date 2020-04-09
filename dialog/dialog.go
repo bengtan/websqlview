@@ -3,8 +3,9 @@ package dialog
 import (
 	"fmt"
 	"reflect"
-	"github.com/zserge/webview"
+
 	"github.com/sqweek/dialog"
+	"github.com/zserge/webview"
 )
 
 // Init binds the js->go bridge for dialog functionality
@@ -70,8 +71,10 @@ func file(config map[string]interface{}) (result interface{}, err error) {
 	}
 	if action, ok := config["type"]; ok {
 		switch action {
-		case "load": return d.Load()
-		case "save": return d.Save()
+		case "load":
+			return d.Load()
+		case "save":
+			return d.Save()
 		}
 	}
 	return nil, fmt.Errorf("type is required")
