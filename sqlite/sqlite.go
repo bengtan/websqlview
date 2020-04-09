@@ -5,13 +5,20 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	// SQLite database driver
-	_ "github.com/mattn/go-sqlite3"
+	"sync"
+
+	"github.com/mattn/go-sqlite3"
 	"github.com/zserge/webview"
 )
 
-var connections []*sql.DB
+type database struct {
+	sqlDb *sql.DB
+	conn *sqlite3.SQLiteConn
+}
+
+var databases []*database
 var transactions []*sql.Tx
+var m sync.Mutex
 
 type queryable interface {
 	Exec(string, ...interface{}) (sql.Result, error)
@@ -29,9 +36,9 @@ func Init(w webview.WebView) {
 
 // Shutdown should be called at program exit. Closes all database connections.
 func Shutdown() {
-	for _, db := range connections {
+	for _, db := range databases {
 		if db != nil {
-			db.Close()
+			db.sqlDb.Close()
 		}
 	}
 }
@@ -127,48 +134,59 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 }
 
 func open(name string) (result interface{}, err error) {
-	db, err := sql.Open("sqlite3", name)
+	m.Lock()
+	defer m.Unlock()
+
+	sqlDb, err := sql.Open("sqlite3", name)
 	if err != nil {
 		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
 	}
 
-	err = db.Ping()
+	err = sqlDb.Ping()
 	if err != nil {
+		sqlDb.Close()
 		return -1, fmt.Errorf("open(%s): %s", name, err.Error())
+	}
+
+	db := &database{
+		sqlDb: sqlDb,
 	}
 
 	handle := -1
-	for i := range connections {
-		if connections[i] == nil {
+	for i := range databases {
+		if databases[i] == nil {
 			// Reuse a handle
 			handle = i
-			connections[i] = db
+			databases[i] = db
 			break
 		}
 	}
 
 	if handle == -1 {
 		// Use a new handle
-		handle = len(connections)
-		connections = append(connections, db)
+		handle = len(databases)
+		databases = append(databases, db)
 	}
 	return handle, nil
 }
 
 func close(handle int) (err error) {
-	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
+	m.Lock()
+	defer m.Unlock()
+
+	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
 		return fmt.Errorf("Invalid handle %d", handle)
 	}
-	db := connections[handle]
-	connections[handle] = nil
-	return db.Close()
+	db := databases[handle]
+	databases[handle] = nil
+	return db.sqlDb.Close()
 }
 
 func exec(handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
+	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
-	return _exec(connections[handle], q, args...)
+	return _exec(databases[handle].sqlDb, q, args...)
 }
 
 func _exec(queryInterface queryable, q string, args ...interface{}) (result interface{}, err error) {
@@ -187,10 +205,10 @@ func _exec(queryInterface queryable, q string, args ...interface{}) (result inte
 }
 
 func query(singleton bool, handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
+	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
-	return _query(singleton, connections[handle], q, args...)
+	return _query(singleton, databases[handle].sqlDb, q, args...)
 }
 
 func _query(singleton bool, queryInterface queryable, q string, args ...interface{}) (result interface{}, err error) {
@@ -246,10 +264,10 @@ func _query(singleton bool, queryInterface queryable, q string, args ...interfac
 }
 
 func queryResult(handle int, q string, args ...interface{}) (result interface{}, err error) {
-	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
+	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
-	return _queryResult(connections[handle], q, args...)
+	return _queryResult(databases[handle].sqlDb, q, args...)
 }
 
 func _queryResult(queryInterface queryable, q string, args ...interface{}) (result interface{}, err error) {
@@ -263,11 +281,11 @@ func _queryResult(queryInterface queryable, q string, args ...interface{}) (resu
 }
 
 func begin(handle int) (result interface{}, err error) {
-	if handle < 0 || handle >= len(connections) || connections[handle] == nil {
+	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
 		return nil, fmt.Errorf("Invalid handle %d", handle)
 	}
 
-	tx, err := connections[handle].Begin()
+	tx, err := databases[handle].sqlDb.Begin()
 	if err != nil {
 		return -1, fmt.Errorf("begin(): %s", err.Error())
 	}
