@@ -7,11 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	silkOs "github.com/bengtan/silk/os"
 	"github.com/zserge/webview"
 )
 
 var (
 	wd string
+	dummyExitCode int
 )
 
 func TestMain(m *testing.M) {
@@ -52,6 +54,8 @@ func testOneJS(filename string) (failure string) {
 		w.Terminate()
 		failure = s
 	})
+
+	silkOs.Init(w, &dummyExitCode)
 
 	Init(w)
 	defer Shutdown()
