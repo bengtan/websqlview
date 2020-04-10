@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>File dialogs example</title>
+  </head>
+  <body>
+    <script>
+        function openDialog(type) {
+            var e = document.getElementById(`${type}-result`)
+            dialog.File({
+                type,
+                title: `${type} a file`,
+                /*
+                filters: {
+                    'All files': ['*'],
+                    'text files': ['txt', 'md'],
+                },
+                */
+                // startDir: '.',
+            }).then(filename => {
+                e.textContent = `... returned: ${filename}`
+                e.style.display = 'inline'
+            }).catch(() => {
+                e.textContent = `... was cancelled`
+                e.style.display = 'inline'
+            })
+        }
+    </script>
+    <h1>File dialogs example</h1>
+    <p>
+      <button onclick="openDialog('load')" style="display: inline">Load file dialog</button>
+      <span id="load-result" style="display: none" />
+    </p>
+    <p>
+      <button onclick="openDialog('save')" style="display: inline">Save file dialog</button>
+      <span id="save-result" style="display: none" />
+    </p>
+    <p>
+      <button onclick="os.exit(0)">Quit</button>
+    </p>
+  </body>
+</html>
