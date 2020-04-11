@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/bengtan/silk/dialog"
-	silkOs "github.com/bengtan/silk/os"
+	"github.com/bengtan/silk/native"
 	"github.com/bengtan/silk/sqlite"
 	"github.com/zserge/webview"
 )
@@ -34,7 +34,7 @@ func mainExitCode() (exitCode int) {
 	w.SetSize(800, 600, webview.HintNone)
 	w.Navigate(filename)
 
-	silkOs.Init(w, &exitCode)
+	native.Init(w, &exitCode)
 	sqlite.Init(w)
 	defer sqlite.Shutdown()
 	dialog.Init(w)

@@ -22,5 +22,5 @@ runTest = async function() {
         return `Unexpected data[2], Actual: ${JSON.stringify(data[2])}`
     }
 
-    await os.remove(tempFilename)
+    await native.remove(tempFilename)
 }

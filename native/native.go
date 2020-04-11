@@ -1,4 +1,4 @@
-package os
+package native
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ var exitCodePtr *int
 // Init binds some custom functionality
 func Init(w webview.WebView, p *int) {
 	exitCodePtr = p
-	w.Bind("_osMux", mux)
-	w.Init(_osJs)
+	w.Bind("_nativeMux", mux)
+	w.Init(_nativeJs)
 }
 
 func mux(w webview.WebView, op string, args ...interface{}) (result interface{}, err error) {

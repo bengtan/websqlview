@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	silkOs "github.com/bengtan/silk/os"
+	"github.com/bengtan/silk/native"
 	"github.com/zserge/webview"
 )
 
@@ -55,7 +55,7 @@ func testOneJS(filename string) (failure string) {
 		failure = s
 	})
 
-	silkOs.Init(w, &dummyExitCode)
+	native.Init(w, &dummyExitCode)
 
 	Init(w)
 	defer Shutdown()
