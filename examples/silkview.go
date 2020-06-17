@@ -7,6 +7,7 @@ import (
 
 	"github.com/bengtan/silk/dialog"
 	"github.com/bengtan/silk/native"
+	"github.com/bengtan/silk/webviewex"
 	"github.com/bengtan/silk/sqlite"
 	"github.com/zserge/webview"
 )
@@ -34,10 +35,11 @@ func mainExitCode() (exitCode int) {
 	w.SetSize(800, 600, webview.HintNone)
 	w.Navigate(filename)
 
-	native.Init(w, &exitCode)
-	sqlite.Init(w)
+	ex := webviewex.New(w)
+	native.Init(ex, &exitCode)
+	sqlite.Init(ex)
 	defer sqlite.Shutdown()
-	dialog.Init(w)
+	dialog.Init(ex)
 
 	w.Run()
 	return

@@ -5,16 +5,22 @@ import (
 	"reflect"
 
 	"github.com/sqweek/dialog"
-	"github.com/zserge/webview"
+	"github.com/bengtan/silk/webviewex"
 )
 
 // Init binds the js->go bridge for dialog functionality
-func Init(w webview.WebView) {
-	w.Bind("_dialogMux", mux)
-	w.Init(_dialogJs)
+func Init(ex *webviewex.WebViewEx) {
+	ex.W.Bind("_dialogMux", func(op string, args ...interface{}) (result interface{}, err error) {
+		return mux(ex, op, args...)
+	})
+	ex.W.Init(_dialogJs)
 }
 
-func mux(op string, args ...interface{}) (result interface{}, err error) {
+func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interface{}, err error) {
+	if ex.URI[0:7] != "file://" {
+		return nil, fmt.Errorf("Access denied")
+	}
+
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%s: %v", op, e)

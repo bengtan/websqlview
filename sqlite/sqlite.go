@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/mattn/go-sqlite3"
-	"github.com/zserge/webview"
+	"github.com/bengtan/silk/webviewex"
 )
 
 type database struct {
@@ -43,11 +43,13 @@ func init() {
 }
 
 // Init binds the js->go bridge for sqlite functionality
-func Init(w webview.WebView) {
+func Init(ex *webviewex.WebViewEx) {
 	// Pre-allocate table to hold up to 8 concurrent transactions
 	transactions = make([]*sql.Tx, 0, 8)
-	w.Bind("_sqliteMux", mux)
-	w.Init(_sqliteJs)
+	ex.W.Bind("_sqliteMux", func(op string, args ...interface{}) (result interface{}, err error) {
+		return mux(ex, op, args...)
+	})
+	ex.W.Init(_sqliteJs)
 }
 
 // Shutdown should be called at program exit. Closes all databases.
@@ -59,7 +61,11 @@ func Shutdown() {
 	}
 }
 
-func mux(op string, args ...interface{}) (result interface{}, err error) {
+func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interface{}, err error) {
+	if ex.URI[0:7] != "file://" {
+		return nil, fmt.Errorf("Access denied")
+	}
+
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%s: %v", op, e)

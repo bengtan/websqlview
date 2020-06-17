@@ -5,21 +5,25 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/zserge/webview"
+	"github.com/bengtan/silk/webviewex"
 )
 
 var exitCodePtr *int
 
 // Init binds some custom functionality
-func Init(w webview.WebView, p *int) {
+func Init(ex *webviewex.WebViewEx, p *int) {
 	exitCodePtr = p
-	w.Bind("_nativeMux", func(op string, args ...interface{}) (result interface{}, err error) {
-		return mux(w, op, args...)
+	ex.W.Bind("_nativeMux", func(op string, args ...interface{}) (result interface{}, err error) {
+		return mux(ex, op, args...)
 	})
-	w.Init(_nativeJs)
+	ex.W.Init(_nativeJs)
 }
 
-func mux(w webview.WebView, op string, args ...interface{}) (result interface{}, err error) {
+func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interface{}, err error) {
+	if ex.URI[0:7] != "file://" {
+		return nil, fmt.Errorf("Access denied")
+	}
+
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%s: %v", op, e)
@@ -29,7 +33,7 @@ func mux(w webview.WebView, op string, args ...interface{}) (result interface{},
 	switch op {
 	case "exit":
 		if exitCode, ok := args[0].(float64); ok {
-			w.Terminate()
+			ex.W.Terminate()
 			*exitCodePtr = int(exitCode)
 			return nil, nil
 		}

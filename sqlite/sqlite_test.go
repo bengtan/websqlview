@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/bengtan/silk/native"
+	"github.com/bengtan/silk/webviewex"
 	"github.com/zserge/webview"
 )
 
@@ -55,9 +56,10 @@ func testOneJS(filename string) (failure string) {
 		failure = s
 	})
 
-	native.Init(w, &dummyExitCode)
+	ex := webviewex.New(w)
+	native.Init(ex, &dummyExitCode)
 
-	Init(w)
+	Init(ex)
 	defer Shutdown()
 
 	// Override with sqlite.js
