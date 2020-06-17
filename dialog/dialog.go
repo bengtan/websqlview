@@ -14,11 +14,7 @@ func Init(w webview.WebView) {
 	w.Init(_dialogJs)
 }
 
-func mux(w webview.WebView, op string, args ...interface{}) (result interface{}, err error) {
-	if w.GetURI()[0:7] != "file://" {
-		return nil, fmt.Errorf("Access denied")
-	}
-
+func mux(op string, args ...interface{}) (result interface{}, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%s: %v", op, e)
