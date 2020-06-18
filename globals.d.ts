@@ -65,7 +65,7 @@ declare module dialog {
     function Directory(config: DirectoryDialogConfig): Promise<string>
 }
 
-declare module sqlite {
+declare module gosqlite {
     class Database {
         /**
          * Construct a new database object. The object must be `open()`-ed before it can be used.

@@ -1,5 +1,5 @@
 runTest = async function() {
-    const db = new sqlite.Database(':memory:')
+    const db = new gosqlite.Database(':memory:')
     await db.open()
     await db.exec(`CREATE TABLE foo (id INTEGER NOT NULL PRIMARY KEY, word TEXT)`)
     

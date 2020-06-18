@@ -1,7 +1,7 @@
 package sqlite
 
 const _sqliteJs = `
-sqlite = (function() {
+gosqlite = (function() {
     const Database = function(filename, id = -1) {
         this._id = id
         this.filename = filename
