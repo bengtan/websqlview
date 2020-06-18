@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/bengtan/silk/native"
-	"github.com/bengtan/silk/webviewex"
+	"github.com/bengtan/websqlview/native"
+	"github.com/bengtan/websqlview/webviewex"
 	"github.com/zserge/webview"
 )
 

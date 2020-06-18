@@ -5,7 +5,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/bengtan/silk/webviewex"
+	"github.com/bengtan/websqlview/webviewex"
 )
 
 var exitCodePtr *int

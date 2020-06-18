@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/mattn/go-sqlite3"
-	"github.com/bengtan/silk/webviewex"
+	"github.com/bengtan/websqlview/webviewex"
 )
 
 type database struct {
@@ -16,7 +16,7 @@ type database struct {
 	conn  *sqlite3.SQLiteConn
 }
 
-const driverName = "sqlite3_silk"
+const driverName = "sqlite3_websqlview"
 
 var (
 	databases             []*database

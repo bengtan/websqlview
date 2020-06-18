@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bengtan/silk/dialog"
-	"github.com/bengtan/silk/native"
-	"github.com/bengtan/silk/webviewex"
-	"github.com/bengtan/silk/sqlite"
+	"github.com/bengtan/websqlview/dialog"
+	"github.com/bengtan/websqlview/native"
+	"github.com/bengtan/websqlview/webviewex"
+	"github.com/bengtan/websqlview/sqlite"
 	"github.com/zserge/webview"
 )
 

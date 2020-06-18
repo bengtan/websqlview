@@ -1,4 +1,4 @@
-module github.com/bengtan/silk
+module github.com/bengtan/websqlview
 
 go 1.13
 
