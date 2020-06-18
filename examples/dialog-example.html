@@ -20,9 +20,11 @@
             }).then(filename => {
                 e.textContent = `... returned: ${filename}`
                 e.style.display = 'inline'
+                native.setTitle(`Selected ${filename}`)
             }).catch(() => {
                 e.textContent = `... was cancelled`
                 e.style.display = 'inline'
+                native.setTitle('Selected <cancelled>')
             })
         }
     </script>

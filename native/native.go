@@ -31,6 +31,11 @@ func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interf
 	}()
 
 	switch op {
+	case "setTitle":
+		if title, ok := args[0].(string); ok {
+			ex.W.SetTitle(title)
+			return nil, nil
+		}
 	case "exit":
 		if exitCode, ok := args[0].(float64); ok {
 			ex.W.Terminate()

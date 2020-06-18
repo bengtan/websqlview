@@ -1,5 +1,12 @@
 declare module native {
     /**
+     * Sets the title of the native window
+     *
+     * @param title: The title to set to
+     */
+    function setTitle(title: string): Promise<void>
+
+    /**
      * Asks the native window to exit 
      *
      * @param exitCode The (CLI) exit code to be returned to the operating system.
