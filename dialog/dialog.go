@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/sqweek/dialog"
 	"github.com/bengtan/websqlview/webviewex"
+	"github.com/sqweek/dialog"
 )
 
 // Init binds the js->go bridge for dialog functionality

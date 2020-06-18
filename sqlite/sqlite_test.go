@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	wd string
+	wd            string
 	dummyExitCode int
 )
 

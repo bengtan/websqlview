@@ -9,9 +9,9 @@ import (
 
 // WebViewEx is an extension/wrapper of WebView
 type WebViewEx struct {
-	W webview.WebView
+	W     webview.WebView
 	token string
-	URI string
+	URI   string
 }
 
 // New creates a WebViewEx extension/wrapper around the supplied WebView
@@ -40,7 +40,7 @@ func New(w webview.WebView) *WebViewEx {
 }
 
 func updateLocation(ex *WebViewEx, uri string, token string) {
-	if (token == ex.token) {
+	if token == ex.token {
 		ex.URI = uri
 	} else {
 		// This should never happen. If it happens, maybe an attacker is trying

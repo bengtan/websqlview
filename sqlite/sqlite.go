@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mattn/go-sqlite3"
 	"github.com/bengtan/websqlview/webviewex"
+	"github.com/mattn/go-sqlite3"
 )
 
 type database struct {
