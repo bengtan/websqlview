@@ -39,3 +39,4 @@ For release, you probably want to fork `websqlview.go` and customise to suit.
 
 * [`examples/dialog-example.html`](examples/dialog-example.html)
 * [`sqlite/test/20-basic.test.js`](sqlite/test/20-basic.test.js)
+* [NanoBooks](https://github.com/nanobooks/nanobooks-ce) - Clean and simple accounting software for solopreneurs, consultants, freelancers and other micro-businesses.
