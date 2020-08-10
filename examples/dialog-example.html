@@ -27,6 +27,37 @@
                 native.setTitle('Selected <cancelled>')
             })
         }
+
+        function writeFile(text) {
+            var result = document.getElementById(`write-result`)
+            dialog.File({
+                type: 'save',
+                title: `Write to a file`,
+                /*
+                filters: {
+                    'All files': ['*'],
+                    'text files': ['txt', 'md'],
+                },
+                */
+                // startDir: '.',
+            }).then(filename => {
+                native.writeFile(filename, new Blob([text])).then(() => {
+                    result.textContent = `... succeeded`
+                    result.style.display = 'inline'
+                    native.setTitle(`Wrote to ${filename}`)
+                }).catch(e => {
+                    result.textContent = `... ${e}`
+                    result.style.display = 'inline'
+                    native.setTitle('Write failed')
+                    throw e
+                })
+            }).catch((e) => {
+                result.textContent = `... was cancelled`
+                result.style.display = 'inline'
+                native.setTitle('Write: cancelled')
+                throw e
+            })
+        }
     </script>
     <h1>File dialogs example</h1>
     <p>
@@ -36,6 +67,10 @@
     <p>
       <button onclick="openDialog('save')" style="display: inline">Save file dialog</button>
       <span id="save-result" style="display: none" />
+    </p>
+    <p>
+      <button onclick="writeFile('Hello World')" style="display: inline">Write 'Hello World' to a file</button>
+      <span id="write-result" style="display: none" />
     </p>
     <p>
       <button onclick="native.exit(0)">Quit</button>

@@ -1,7 +1,9 @@
 package native
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"reflect"
 
@@ -45,6 +47,16 @@ func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interf
 	case "remove":
 		if name, ok := args[0].(string); ok {
 			return nil, os.Remove(name)
+		}
+	case "writeFile":
+		filename, ok0 := args[0].(string)
+		base64string, ok1 := args[1].(string)
+		if ok0 && ok1 {
+			bytes, error := base64.StdEncoding.DecodeString(base64string)
+			if error == nil {
+				error = ioutil.WriteFile(filename, bytes, 0644)
+			}
+			return nil, error
 		}
 	}
 
