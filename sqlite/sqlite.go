@@ -62,7 +62,8 @@ func Shutdown() {
 }
 
 func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interface{}, err error) {
-	if ex.URI[0:7] != "file://" {
+	if ex.URI[0:7] != "file://" && ex.URI[0:5] != "data:" {
+		fmt.Println("sqlite.go ex.URI:", ex.URI)
 		return nil, fmt.Errorf("Access denied")
 	}
 

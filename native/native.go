@@ -22,7 +22,7 @@ func Init(ex *webviewex.WebViewEx, p *int) {
 }
 
 func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interface{}, err error) {
-	if ex.URI[0:7] != "file://" {
+	if ex.URI[0:7] != "file://" && ex.URI[0:5] != "data:" {
 		return nil, fmt.Errorf("Access denied")
 	}
 
