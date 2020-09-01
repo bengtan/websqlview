@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/bengtan/websqlview/native"
@@ -13,13 +14,68 @@ import (
 )
 
 var (
-	wd            string
+	wv            webview.WebView
+	sema          sync.Mutex
 	dummyExitCode int
+	passFn        func()
+	failFn        func(s string)
 )
 
 func TestMain(m *testing.M) {
-	wd, _ = os.Getwd()
-	os.Exit(m.Run())
+	os.Exit(_testMain(m))
+}
+
+func _testMain(m *testing.M) (result int) {
+	wv = webview.New(true)
+	defer wv.Destroy()
+	wv.SetTitle("Testing")
+	wv.SetSize(800, 600, webview.HintNone)
+
+	ex := webviewex.New(wv)
+	native.Init(ex, &dummyExitCode)
+	Init(ex)
+	defer Shutdown()
+
+	// Override with sqlite.js
+	sqliteJs, err := ioutil.ReadFile("sqlite.js")
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		wv.Init(string(sqliteJs))
+	}
+
+	// Future callbacks
+	wv.Bind("pass", func() {
+		if passFn != nil {
+			passFn()
+		}
+	})
+	wv.Bind("fail", func(s string) {
+		if failFn != nil {
+			failFn(s)
+		}
+	})
+
+	// Some coordination with semaphores and asynchronous magic
+	wv.Bind("__TestHarnessInit", func() {
+		sema.Unlock()
+	})
+	wv.Init("window.onload = function() { __TestHarnessInit(); }")
+	wv.Navigate("data:text/text,TestHarness")
+
+	result = 1
+	sema.Lock()
+	go func() {
+		sema.Lock()
+		result = m.Run()
+		sema.Unlock()
+		if result == 0 {
+			wv.Terminate()
+		}
+	}()
+
+	wv.Run()
+	return
 }
 
 func TestJS(t *testing.T) {
@@ -38,39 +94,39 @@ func TestJS(t *testing.T) {
 }
 
 func testOneJS(filename string) (failure string) {
+	var mutex sync.Mutex
 	failure = ""
+
 	text, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err.Error()
 	}
 
-	w := webview.New(true)
-	defer w.Destroy()
-	w.SetTitle("Testing: " + filename)
-	w.SetSize(800, 600, webview.HintNone)
-	w.Bind("pass", func() {
-		w.Terminate()
-	})
-	w.Bind("fail", func(s string) {
-		w.Terminate()
-		failure = s
-	})
-
-	ex := webviewex.New(w)
-	native.Init(ex, &dummyExitCode)
-
-	Init(ex)
-	defer Shutdown()
-
-	// Override with sqlite.js
-	sqliteJs, err := ioutil.ReadFile("sqlite.js")
-	if err != nil {
-		return err.Error()
+	mutex.Lock()
+	passFn = func() {
+		mutex.Unlock()
 	}
-	w.Init(string(sqliteJs))
+	failFn = func(s string) {
+		failure = s
+		mutex.Unlock()
+	}
 
-	w.Init(string(text))
-	w.Navigate("file://" + wd + "/test/testHarness.html")
-	w.Run()
+	// Execute on main thread otherwise weird stuff happens (on some platforms)
+	wv.Dispatch(func() {
+		wv.SetTitle("Testing: " + filename)
+		wv.Eval(string(text))
+		wv.Eval(`runTest().then(errString => {
+			errString ? fail(errString.toString()) : pass()
+		}).catch(e => {
+			fail('Unhandled promise rejection: ' + e.toString())
+		})`)
+	})
+
+	// Wait for the result
+	mutex.Lock()
+	mutex.Unlock()
+
+	passFn = nil
+	failFn = nil
 	return
 }
