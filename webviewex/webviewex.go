@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"github.com/zserge/webview"
+	"github.com/webview/webview"
 )
 
 // WebViewEx is an extension/wrapper of WebView

@@ -9,7 +9,7 @@ import (
 	"github.com/bengtan/websqlview/native"
 	"github.com/bengtan/websqlview/sqlite"
 	"github.com/bengtan/websqlview/webviewex"
-	"github.com/zserge/webview"
+	"github.com/webview/webview"
 )
 
 func main() {
