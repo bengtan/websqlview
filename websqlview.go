@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/bengtan/websqlview/dialog"
 	"github.com/bengtan/websqlview/native"
@@ -11,6 +12,15 @@ import (
 	"github.com/bengtan/websqlview/webviewex"
 	"github.com/webview/webview"
 )
+
+func processURI(uri string) string {
+	if _, error := os.Stat(uri); error == nil {
+		if abs, error := filepath.Abs(uri); error == nil {
+			return "file://" + abs
+		}
+	}
+	return uri
+}
 
 func main() {
 	os.Exit(mainExitCode())
@@ -23,17 +33,18 @@ func mainExitCode() (exitCode int) {
 	flag.BoolVar(&debug, "debug", debug, "debug")
 	flag.Parse()
 
-	filename := flag.Arg(0)
-	if filename == "" {
-		fmt.Println("Please supply a URI")
+	arg := flag.Arg(0)
+	if arg == "" {
+		fmt.Println("Please supply a filename or URI (ie. file:///...)")
 		return
 	}
+	uri := processURI(arg)
 
 	w := webview.New(debug)
 	defer w.Destroy()
-	w.SetTitle(filename)
+	w.SetTitle(uri)
 	w.SetSize(800, 600, webview.HintNone)
-	w.Navigate(filename)
+	w.Navigate(uri)
 
 	ex := webviewex.New(w)
 	native.Init(ex, &exitCode)
