@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
-	"strings"
 	"sync"
 
 	"github.com/bengtan/websqlview/webviewex"
@@ -245,10 +244,6 @@ func query(singleton bool, handle int, q string, args ...interface{}) (result in
 }
 
 func _query(singleton bool, queryInterface queryable, q string, args ...interface{}) (result interface{}, err error) {
-	if strings.ToLower(q[0:6]) != "select" {
-		return nil, fmt.Errorf("Query strings must start with SELECT")
-	}
-
 	rows, err := queryInterface.Query(q, args...)
 	if err != nil {
 		return nil, err
@@ -304,10 +299,6 @@ func queryResult(handle int, q string, args ...interface{}) (result interface{},
 }
 
 func _queryResult(queryInterface queryable, q string, args ...interface{}) (result interface{}, err error) {
-	if strings.ToLower(q[0:6]) != "select" {
-		return nil, fmt.Errorf("Query strings must start with SELECT")
-	}
-
 	var data interface{}
 	err = queryInterface.QueryRow(q, args...).Scan(&data)
 	return data, err
