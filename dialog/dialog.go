@@ -28,6 +28,10 @@ func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interf
 	}()
 
 	switch op {
+	case "message":
+		if config, ok := args[0].(map[string]interface{}); ok {
+			return message(config)
+		}
 	case "directory":
 		if config, ok := args[0].(map[string]interface{}); ok {
 			return directory(config)
@@ -43,6 +47,32 @@ func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interf
 		signature = append(signature, reflect.TypeOf(arg).Name())
 	}
 	return nil, fmt.Errorf("Unknown operation %s with signature %v", op, signature)
+}
+
+func message(config map[string]interface{}) (result interface{}, err error) {
+	if message, ok := config["message"]; ok {
+		d := dialog.Message(message.(string))
+
+		if title, ok := config["title"]; ok {
+			d.Title(title.(string))
+		}
+
+		if action, ok := config["type"]; ok {
+			switch action {
+			case "info":
+				d.Info()
+				return nil, nil
+			case "error":
+				d.Error()
+				return nil, nil
+			case "confirm":
+				return d.YesNo(), nil
+			}
+			return nil, fmt.Errorf("unknown type")
+		}
+		return nil, fmt.Errorf("type is required")
+	}
+	return nil, fmt.Errorf("message is required")
 }
 
 func directory(config map[string]interface{}) (result interface{}, err error) {

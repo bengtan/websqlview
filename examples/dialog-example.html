@@ -5,6 +5,15 @@
   </head>
   <body>
     <script>
+        function dialogConfirm(message, title) {
+            var e = document.getElementById(`confirm-result`)
+            dialog.confirm(message, title).then(result => {
+                e.textContent = `... returned: ${result}`
+                e.style.display = 'inline'
+                native.setTitle(`Confirmed: ${result}`)
+            })
+        }
+
         function openDialog(type) {
             var e = document.getElementById(`${type}-result`)
             dialog.file({
@@ -59,17 +68,23 @@
             })
         }
     </script>
-    <h1>File dialogs example</h1>
+    <h1>Dialogs example</h1>
     <p>
-      <button onclick="openDialog('load')" style="display: inline">Load file dialog</button>
+      <button onclick="dialog.alert('This is an alert', 'This is a title')">Alert</button>
+      <button onclick="dialog.error('This is an error', 'This is a title')">Error</button>
+      <button onclick="dialogConfirm('Confirm?')">Confirm</button>
+      <span id="confirm-result" style="display: none" />
+    </p>
+    <p>
+      <button onclick="openDialog('load')">Load file dialog</button>
       <span id="load-result" style="display: none" />
     </p>
     <p>
-      <button onclick="openDialog('save')" style="display: inline">Save file dialog</button>
+      <button onclick="openDialog('save')">Save file dialog</button>
       <span id="save-result" style="display: none" />
     </p>
     <p>
-      <button onclick="writeFile('Hello World')" style="display: inline">Write 'Hello World' to a file</button>
+      <button onclick="writeFile('Hello World')">Write 'Hello World' to a file</button>
       <span id="write-result" style="display: none" />
     </p>
     <p>

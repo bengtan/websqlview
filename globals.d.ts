@@ -78,6 +78,10 @@ declare module dialog {
      * ```
      */
     function directory(config: DirectoryDialogConfig): Promise<string>
+
+    function alert(message: string, title?: string): void
+    function error(message: string, title?: string): void
+    function confirm(message: string, title?: string): Promise<boolean>
 }
 
 declare module gosqlite {
