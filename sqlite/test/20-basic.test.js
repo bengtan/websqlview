@@ -2,7 +2,7 @@ runTest = async function() {
     const db = new gosqlite.Database(':memory:')
     await db.open()
     await db.exec(`CREATE TABLE foo (id INTEGER NOT NULL PRIMARY KEY, word TEXT)`)
-    
+
     data = await db.exec(`INSERT INTO foo(word) VALUES(?)`, 'Lorem')
     if (data.lastInsertId != 1) {
         return `Expected: lastInsertId == 1, Actual: ${data.lastInsertId}`

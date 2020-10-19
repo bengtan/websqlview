@@ -16,7 +16,7 @@ native = (function() {
                     if (reader.result) {
                         _nativeMux('writeFile', filename, reader.result.replace(/data:.*base64,/, ''))
                         .then(resolve)
-                        .catch(reject)    
+                        .catch(reject)
                     }
                     else {
                         reject('readAsDataURL: No result')
