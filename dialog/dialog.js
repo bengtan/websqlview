@@ -1,13 +1,13 @@
 dialog = (function() {
-    const Directory = function(config) {
+    const directory = function(config) {
         return _dialogMux('directory', config)
     }
-    const File = function(config) {
+    const file = function(config) {
         return _dialogMux('file', config)
     }
 
     return {
-        Directory,
-        File
+        directory,
+        file
     }
 })()

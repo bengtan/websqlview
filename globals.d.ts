@@ -60,7 +60,7 @@ declare module dialog {
      * }
      * ```
      */
-    function File(config: FileDialogConfig): Promise<string>
+    function file(config: FileDialogConfig): Promise<string>
 
     interface DirectoryDialogConfig {
         // Title of dialog
@@ -77,7 +77,7 @@ declare module dialog {
      * }
      * ```
      */
-    function Directory(config: DirectoryDialogConfig): Promise<string>
+    function directory(config: DirectoryDialogConfig): Promise<string>
 }
 
 declare module gosqlite {
