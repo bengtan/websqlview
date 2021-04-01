@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	_ "embed"
 	"fmt"
 	"reflect"
 	"sync"
@@ -9,6 +10,9 @@ import (
 	"github.com/bengtan/websqlview/webviewex"
 	"github.com/mattn/go-sqlite3"
 )
+
+//go:embed sqlite.js
+var _sqliteJs string
 
 type database struct {
 	sqlDb *sql.DB
@@ -63,7 +67,7 @@ func Shutdown() {
 func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interface{}, err error) {
 	if ex.URI[0:7] != "file://" && ex.URI[0:5] != "data:" {
 		fmt.Println("sqlite.go ex.URI:", ex.URI)
-		return nil, fmt.Errorf("Access denied")
+		return nil, fmt.Errorf("access denied")
 	}
 
 	defer func() {
@@ -154,7 +158,7 @@ func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interf
 	for _, arg := range args {
 		signature = append(signature, reflect.TypeOf(arg).Name())
 	}
-	return nil, fmt.Errorf("Unknown operation %s with signature %v", op, signature)
+	return nil, fmt.Errorf("unknown operation %s with signature %v", op, signature)
 }
 
 func open(name string) (handle int, err error) {
@@ -207,7 +211,7 @@ func close(handle int) (err error) {
 	defer m.Unlock()
 
 	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
-		return fmt.Errorf("Invalid handle %d", handle)
+		return fmt.Errorf("invalid handle %d", handle)
 	}
 	db := databases[handle]
 	databases[handle] = nil
@@ -216,7 +220,7 @@ func close(handle int) (err error) {
 
 func exec(handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 	return _exec(databases[handle].sqlDb, q, args...)
 }
@@ -238,7 +242,7 @@ func _exec(queryInterface queryable, q string, args ...interface{}) (result inte
 
 func query(singleton bool, handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 	return _query(singleton, databases[handle].sqlDb, q, args...)
 }
@@ -252,7 +256,7 @@ func _query(singleton bool, queryInterface queryable, q string, args ...interfac
 
 	// Prepare placeholders for scanning
 	types, _ := rows.ColumnTypes()
-	columns := make([]interface{}, len(types), len(types))
+	columns := make([]interface{}, len(types))
 	references := make([]interface{}, 0, len(types))
 	for i := range types {
 		references = append(references, &columns[i])
@@ -293,7 +297,7 @@ func _query(singleton bool, queryInterface queryable, q string, args ...interfac
 
 func queryResult(handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 	return _queryResult(databases[handle].sqlDb, q, args...)
 }
@@ -306,7 +310,7 @@ func _queryResult(queryInterface queryable, q string, args ...interface{}) (resu
 
 func backupTo(handle int, dest string) (_ int, err error) {
 	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
-		return -1, fmt.Errorf("Invalid handle %d", handle)
+		return -1, fmt.Errorf("invalid handle %d", handle)
 	}
 
 	destHandle, err := open(dest)
@@ -348,7 +352,7 @@ func backupTo(handle int, dest string) (_ int, err error) {
 
 func begin(handle int) (result interface{}, err error) {
 	if handle < 0 || handle >= len(databases) || databases[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 
 	tx, err := databases[handle].sqlDb.Begin()
@@ -376,7 +380,7 @@ func begin(handle int) (result interface{}, err error) {
 
 func txCommitOrRollback(isCommit bool, handle int) (err error) {
 	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
-		return fmt.Errorf("Invalid handle %d", handle)
+		return fmt.Errorf("invalid handle %d", handle)
 	}
 	tx := transactions[handle]
 	transactions[handle] = nil
@@ -389,7 +393,7 @@ func txCommitOrRollback(isCommit bool, handle int) (err error) {
 
 func txExec(handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 
 	return _exec(transactions[handle], q, args...)
@@ -397,14 +401,14 @@ func txExec(handle int, q string, args ...interface{}) (result interface{}, err 
 
 func txQuery(singleton bool, handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 	return _query(singleton, transactions[handle], q, args...)
 }
 
 func txQueryResult(handle int, q string, args ...interface{}) (result interface{}, err error) {
 	if handle < 0 || handle >= len(transactions) || transactions[handle] == nil {
-		return nil, fmt.Errorf("Invalid handle %d", handle)
+		return nil, fmt.Errorf("invalid handle %d", handle)
 	}
 	return _queryResult(transactions[handle], q, args...)
 }

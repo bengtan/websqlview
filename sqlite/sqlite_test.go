@@ -124,6 +124,7 @@ func testOneJS(filename string) (failure string) {
 
 	// Wait for the result
 	mutex.Lock()
+	{}		// Avoid warning: empty critical section (SA2001)
 	mutex.Unlock()
 
 	passFn = nil
