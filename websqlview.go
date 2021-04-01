@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/bengtan/websqlview/dialog"
+	"github.com/bengtan/websqlview/mysql"
 	"github.com/bengtan/websqlview/native"
 	"github.com/bengtan/websqlview/sqlite"
 	"github.com/bengtan/websqlview/webviewex"
@@ -50,6 +51,8 @@ func mainExitCode() (exitCode int) {
 	native.Init(ex, &exitCode)
 	sqlite.Init(ex)
 	defer sqlite.Shutdown()
+	mysql.Init(ex)
+	defer mysql.Shutdown()
 	dialog.Init(ex)
 
 	w.Run()

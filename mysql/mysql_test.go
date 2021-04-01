@@ -1,4 +1,4 @@
-package sqlite
+package mysql
 
 import (
 	"fmt"
@@ -12,6 +12,9 @@ import (
 	"github.com/bengtan/websqlview/webviewex"
 	"github.com/webview/webview"
 )
+
+// Note: This assumes that an mysql database 'test' exists.
+const DB_DSN = "test:test@tcp(localhost)/test"
 
 var (
 	wv            webview.WebView
@@ -36,13 +39,16 @@ func _testMain(m *testing.M) (result int) {
 	Init(ex)
 	defer Shutdown()
 
-	// Override with sqlite.js
-	sqliteJs, err := ioutil.ReadFile("sqlite.js")
+	// Override with mysql.js
+	mysqlJs, err := ioutil.ReadFile("mysql.js")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		wv.Init(string(sqliteJs))
+		wv.Init(string(mysqlJs))
 	}
+
+	// Inject DB_DSN
+	wv.Init(`const DB_DSN = "` + DB_DSN + `"`)
 
 	// Future callbacks
 	wv.Bind("pass", func() {

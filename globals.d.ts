@@ -168,3 +168,86 @@ declare module gosqlite {
         queryResult(query: string, ...params: any[]): Promise<any>
     }
 }
+
+declare module gomysql {
+    class Database {
+        /**
+         * Construct a new database object.
+         * 
+         * This doesn't actually create a MYSQL database. It just creates an
+         * object that represents a database. The database must already exist.
+         * 
+         *  The object must be `open()`-ed before it can be used.
+         *
+         * @param filename DSN of database ie. `test:test@tcp(localhost)/test`. See https://github.com/go-sql-driver/mysql/#dsn-data-source-name
+         */
+        constructor(filename: string)
+
+        /**
+         * Opens a database
+         */
+        open(): Promise<void>
+
+        /**
+         * Closes a database
+         */
+        close(): Promise<void>
+
+        /**
+         * Executes a SQL query that does not retrieve any results
+         *
+         * @param query Query string. Use `?` for parameter placeholders
+         * @param params Optional parameters
+         */
+        exec(query: string, ...params: any[]): Promise<{lastInsertId: number, rowsAffected: number}>
+
+        /**
+         * Executes a SQL SELECT query and returns an array of objects
+         *
+         * @param query Query string. Use `?` for parameter placeholders
+         * @param params Optional parameters
+         */
+        query(query: string, ...params: any[]): Promise<object[]>
+
+        /**
+         * Executes a SQL SELECT query and returns the first row as an object
+         *
+         * @param query Query string. Use `?` for parameter placeholders
+         * @param params Optional parameters
+         */
+        queryRow(query: string, ...params: any[]): Promise<object>
+
+        /**
+         * Executes a SQL SELECT query that retrieves a single field and returns it
+         *
+         * @param query Query string. Use `?` for parameter placeholders
+         * @param params Optional parameters
+         */
+        queryResult(query: string, ...params: any[]): Promise<any>
+
+        /**
+         * Begins a transaction and returns it
+         */
+        begin(): Promise<Transaction>
+    }
+
+    class Transaction {
+        /**
+         * Commits a transaction
+         */
+        commit(): Promise<void>
+
+        /**
+         * Rollback or cancels a transaction
+         */
+        rollback(): Promise<void>
+
+        /**
+         * See Database.exec/query/queryRow/queryResult above
+         */
+        exec(query: string, ...params: any[]): Promise<{lastInsertId: number, rowsAffected: number}>
+        query(query: string, ...params: any[]): Promise<object[]>
+        queryRow(query: string, ...params: any[]): Promise<object>
+        queryResult(query: string, ...params: any[]): Promise<any>
+    }
+}
