@@ -1,6 +1,7 @@
 package native
 
 import (
+	_ "embed"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +10,9 @@ import (
 
 	"github.com/bengtan/websqlview/webviewex"
 )
+
+//go:embed native.js
+var _nativeJs string
 
 var exitCodePtr *int
 

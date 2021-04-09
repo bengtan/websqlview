@@ -1,12 +1,16 @@
 package dialog
 
 import (
+	_ "embed"
 	"fmt"
 	"reflect"
 
 	"github.com/bengtan/websqlview/webviewex"
 	"github.com/sqweek/dialog"
 )
+
+//go:embed dialog.js
+var _dialogJs string
 
 // Init binds the js->go bridge for dialog functionality
 func Init(ex *webviewex.WebViewEx) {
