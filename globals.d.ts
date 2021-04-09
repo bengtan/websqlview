@@ -27,6 +27,13 @@ declare module native {
      * @param data data to write
      */
     function writeFile(filename: string, data: Blob): Promise<void>
+
+    /**
+     * Opens a URL in external browser
+     *
+     * @param url URL to open
+     */
+    function openUrl(filename: string): Promise<void>
 }
 
 declare module dialog {

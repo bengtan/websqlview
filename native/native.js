@@ -25,5 +25,8 @@ native = (function() {
                 reader.readAsDataURL(new Blob([blob], {type: 'application/octet-stream'}))
             })
         },
+        openUrl: url => {
+            return _nativeMux('openUrl', url)
+        },
     }
 })()

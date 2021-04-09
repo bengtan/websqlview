@@ -9,6 +9,7 @@ import (
 	"reflect"
 
 	"github.com/bengtan/websqlview/webviewex"
+	"github.com/pkg/browser"
 )
 
 //go:embed native.js
@@ -61,6 +62,10 @@ func mux(ex *webviewex.WebViewEx, op string, args ...interface{}) (result interf
 				error = ioutil.WriteFile(filename, bytes, 0644)
 			}
 			return nil, error
+		}
+	case "openUrl":
+		if url, ok := args[0].(string); ok {
+			return nil, browser.OpenURL(url)
 		}
 	}
 
