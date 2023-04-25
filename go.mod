@@ -3,7 +3,7 @@ module github.com/bengtan/websqlview
 go 1.16
 
 require (
-	github.com/go-sql-driver/mysql v1.6.0
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/pkg/browser v0.0.0-20210115035449-ce105d075bb4
